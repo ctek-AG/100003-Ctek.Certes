@@ -30,7 +30,7 @@ jobs:
       run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./src/Certes/Certes.csproj
 
     - name: Build solution
       run: dotnet build ./src/Certes/Certes.csproj --configuration Release /p:AssemblyName=Ctek.Certes,Version=${{ env.VERSION }}
