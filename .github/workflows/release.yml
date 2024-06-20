@@ -14,9 +14,7 @@ permissions:
 jobs:
 
   publish:
-    needs: build
     runs-on: ubuntu-latest
-    if: success()
 
     steps:
     - name: Checkout code
