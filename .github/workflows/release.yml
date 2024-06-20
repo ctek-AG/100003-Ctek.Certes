@@ -36,7 +36,7 @@ jobs:
       run: dotnet build ./src/Certes/Certes.csproj --configuration Release /p:AssemblyName=Ctek.Certes,Version=${{ env.VERSION }}
       
     - name: Pack Nuget
-      run: dotnet pack --configuration Release --include-symbols /p:AssemblyName=Ctek.Certes,Version=${{ needs.get-version-string.outputs.versionstring }} --output ./bin/.nuget ./src/Certes/Certes.csproj
+      run: dotnet pack --configuration Release --include-symbols /p:AssemblyName=Ctek.Certes,Version=${{ env.VERSION }} --output ./bin/.nuget ./src/Certes/Certes.csproj
       
     - name: Publish NuGet packages
       run: |
