@@ -1,0 +1,49 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+    branches:
+      - master
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+
+    - name: Extract version from tag
+      id: extract_version
+      run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build ./src/Certes/Certes.csproj --configuration Release /p:AssemblyName=Ctek.Certes,Version=${{ env.VERSION }}
+      
+    - name: Pack Nuget
+      run: dotnet pack --configuration Release --include-symbols /p:AssemblyName=Ctek.Certes,Version=${{ needs.get-version-string.outputs.versionstring }} --output ./bin/.nuget ./src/Certes/Certes.csproj
+      
+    - name: Publish NuGet packages
+      run: |
+        echo "Start publishing packages to NuGet:"
+        for file in ./bin/.nuget/*.symbols.nupkg; do
+          echo " - Publishing $file"
+          dotnet nuget push "$file" --source https://nuget.pkg.github.com/ctek-AG/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
+        done
